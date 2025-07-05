@@ -33,12 +33,13 @@ export default function CreateReview() {
     };
 
     return (
-        <ScrollView className="flex-1 bg-gray-50 p-4">
-            <Card className="mb-6">
+        <ScrollView className="bg-gray-50 min-h-screen p-4">
+            <View className="mb-6 bg-white rounded-xl shadow-sm p-6">
                 <Text className="text-xl font-bold text-center mb-2">
                     Reviewing: {appName}
                 </Text>
-            </Card>
+            </View>
+
 
             <Card>
                 {/* Child Age Selector */}
