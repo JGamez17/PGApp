@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { View, ScrollView, Text } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { View, Text } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import Button from "app/components/Button";
 import Card from "app/components/Card";
 import EnjoymentSelector from './components/EnjoymentSelector';
@@ -33,13 +33,12 @@ export default function CreateReview() {
     };
 
     return (
-        <ScrollView className="bg-gray-50 min-h-screen p-4">
+        <View className="flex-1 bg-gray-50 p-4">
             <View className="mb-6 bg-white rounded-xl shadow-sm p-6">
                 <Text className="text-xl font-bold text-center mb-2">
                     Reviewing: {appName}
                 </Text>
             </View>
-
 
             <Card>
                 {/* Child Age Selector */}
@@ -111,6 +110,6 @@ export default function CreateReview() {
             >
                 Submit Review
             </Button>
-        </ScrollView>
+        </View>
     );
 }

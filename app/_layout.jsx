@@ -1,27 +1,22 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import BottomNavigation from './components/BottomNavigation';
-import Dashboard from './features/dashboard';
+"use client"
 
-const AppLayout = () => {
-    const [activeTab, setActiveTab] = useState('dashboard');
+import { Stack } from "expo-router"
+import { AuthProvider } from "../contexts/AuthContexts"
+import { useEffect } from "react"
+
+export default function RootLayout() {
+    useEffect(() => {
+        console.log("RootLayout: Component mounted")
+    }, [])
 
     return (
-        <View className="flex-1">
-            {/* Main content */}
-            <View className="flex-1">
-                {activeTab === 'dashboard' && <Dashboard />}
-                {activeTab === 'library' && <AppLibrary />}
-                {activeTab === 'reviews' && <ReviewsScreen />}
-            </View>
-
-            {/* Bottom Navigation */}
-            <BottomNavigation
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-            />
-        </View>
-    );
+        <AuthProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="auth" />
+                <Stack.Screen name="child-profile" />
+                <Stack.Screen name="app-detail" />
+            </Stack>
+        </AuthProvider>
+    )
 }
-
-export default AppLayout;

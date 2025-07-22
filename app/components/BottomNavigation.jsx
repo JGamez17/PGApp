@@ -1,94 +1,98 @@
-import React from 'react';
-import { View, Pressable, Text } from 'react-native';
-import { Home, Grid3X3, MessageSquare, Headphones } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+"use client"
 
-const BottomNavigation = ({ activeTab, onTabChange }) => {
-    const insets = useSafeAreaInsets();
+import { useState } from "react"
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { Ionicons } from "@expo/vector-icons"
 
-    const navItems = [
+const BottomNavigation = ({ onTabPress }) => {
+    const [activeTab, setActiveTab] = useState("HOME")
+
+    const tabs = [
         {
-            key: 'dashboard',
-            label: 'Home',
-            icon: Home,
-            activeColor: 'text-blue-600',
-            inactiveColor: 'text-gray-500',
-            bgColor: 'bg-blue-50'
+            id: "HOME",
+            label: "HOME",
+            icon: "home",
+            iconOutline: "home-outline",
         },
         {
-            key: 'library',
-            label: 'Library',
-            icon: Grid3X3,
-            activeColor: 'text-green-600',
-            inactiveColor: 'text-gray-500',
-            bgColor: 'bg-green-50'
+            id: "APP_LIBRARY",
+            label: "APP LIBRARY",
+            icon: "grid",
+            iconOutline: "grid-outline",
         },
         {
-            key: 'reviews',
-            label: 'Reviews',
-            icon: MessageSquare,
-            activeColor: 'text-purple-600',
-            inactiveColor: 'text-gray-500',
-            bgColor: 'bg-purple-50'
+            id: "REVIEWS",
+            label: "REVIEWS",
+            icon: "chatbubble",
+            iconOutline: "chatbubble-outline",
         },
-        {
-            key: 'support',
-            label: 'Support',
-            icon: Headphones,
-            activeColor: 'text-orange-600',
-            inactiveColor: 'text-gray-500',
-            bgColor: 'bg-orange-50'
-        },
-    ];
+    ]
+
+    const handleTabPress = (tabId) => {
+        setActiveTab(tabId)
+        if (onTabPress) {
+            onTabPress(tabId)
+        }
+    }
 
     return (
-        <View
-            className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50"
-            style={{
-                paddingBottom: insets.bottom,
-                boxShadowColor: '#000',
-                boxShadowOffset: { width: 0, height: -4 },
-                boxShadowOpacity: 0.15,
-                boxShadowRadius: 20,
-                elevation: 10,
-                minHeight: 70
-            }}
-        >
-            <View className="flex-row">
-                {navItems.map(({ key, label, icon: Icon, activeColor, inactiveColor, bgColor }) => {
-                    const isActive = activeTab === key;
-
-                    return (
-                        <Pressable
-                            key={key}
-                            onPress={() => {
-                                console.log('Clicked nav item:', key);
-                                onTabChange(key);
-                            }}
-                            className={`flex-1 items-center justify-center py-2 px-1 active:opacity-80 ${isActive ? 'transform scale-105' : ''
-                                }`}
-                            style={{ minHeight: 70 }}
-                            accessibilityLabel={label}
-                        >
-                            <View className={`items-center justify-center w-10 h-10 rounded-xl mb-1 ${isActive ? bgColor : ''
-                                }`}>
-                                <Icon
-                                    size={24}
-                                    className={`${isActive ? activeColor : inactiveColor
-                                        }`}
-                                    strokeWidth={isActive ? 2.5 : 2}
-                                />
-                            </View>
-                            <Text className={`text-xs font-medium ${isActive ? activeColor : inactiveColor
-                                }`}>
-                                {label}
-                            </Text>
-                        </Pressable>
-                    );
-                })}
-            </View>
+        <View style={styles.container}>
+            {tabs.map((tab) => (
+                <TouchableOpacity key={tab.id} style={styles.tab} onPress={() => handleTabPress(tab.id)} activeOpacity={0.7}>
+                    <Ionicons
+                        name={activeTab === tab.id ? tab.icon : tab.iconOutline}
+                        size={24}
+                        color={activeTab === tab.id ? "#4F7EFF" : "#9CA3AF"}
+                        style={styles.icon}
+                    />
+                    <Text
+                        style={[
+                            styles.label,
+                            {
+                                color: activeTab === tab.id ? "#4F7EFF" : "#9CA3AF",
+                                fontWeight: activeTab === tab.id ? "600" : "500",
+                            },
+                        ]}
+                    >
+                        {tab.label}
+                    </Text>
+                </TouchableOpacity>
+            ))}
         </View>
-    );
+    )
 }
 
-export default BottomNavigation;
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: "row",
+        backgroundColor: "#FFFFFF",
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderTopWidth: 1,
+        borderTopColor: "#F3F4F6",
+        elevation: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: -2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+    },
+    tab: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 8,
+    },
+    icon: {
+        marginBottom: 4,
+    },
+    label: {
+        fontSize: 11,
+        textAlign: "center",
+        letterSpacing: 0.5,
+    },
+})
+
+export default BottomNavigation
