@@ -142,21 +142,9 @@ export default function ChildProfileScreen() {
 
             if (result.success) {
                 console.log("ChildProfile: Profile saved successfully")
-
-                // Show success message briefly, then navigate
-                Alert.alert(
-                    "Success",
-                    isEditing ? "Child profile updated successfully!" : "Child profile created successfully!",
-                    [
-                        {
-                            text: "Continue",
-                            onPress: () => {
-                                console.log("ChildProfile: Navigating to dashboard")
-                                router.replace("/(tabs)")
-                            },
-                        },
-                    ],
-                )
+                // Directly navigate to the dashboard without an alert
+                console.log("ChildProfile: Navigating to dashboard after update")
+                router.replace("/(tabs)")
             } else {
                 Alert.alert("Error", result.error || "Failed to save child profile")
             }
