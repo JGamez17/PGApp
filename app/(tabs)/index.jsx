@@ -3,30 +3,44 @@
 import { useEffect, useState } from "react"
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native"
 import { useRouter } from "expo-router"
-import { useAuth } from "../../contexts/AuthContexts"
+import { useAuth } from "../../contexts/AuthContext"
 
 export default function HomeScreen() {
-    const { isAuthenticated, isLoading, user } = useAuth()
+    const { isAuthenticated, isLoading, user, needsChildProfile } = useAuth()
     const router = useRouter()
     const [hasRedirected, setHasRedirected] = useState(false)
+    const hasChildProfile = user?.hasChildProfile
 
     useEffect(() => {
-        console.log("HomeScreen: Auth state changed", { isAuthenticated, isLoading, hasUser: !!user })
+        console.log("HomeScreen: Auth state changed", {
+            isAuthenticated,
+            isLoading,
+            hasUser: !!user,
+            needsChildProfile,
+            hasChildProfile,
+        })
 
-        if (!isLoading && !isAuthenticated && !hasRedirected) {
-            console.log("HomeScreen: Redirecting to login...")
-            setHasRedirected(true)
-
-            // Use a small delay to ensure the router is ready
-            setTimeout(() => {
-                router.replace("/auth/login")
-            }, 100)
+        if (!isLoading && !hasRedirected) {
+            if (!isAuthenticated) {
+                console.log("HomeScreen: Redirecting to login...")
+                setHasRedirected(true)
+                setTimeout(() => {
+                    router.replace("/auth/login")
+                }, 100)
+            } else if (needsChildProfile) {
+                console.log("HomeScreen: Redirecting to child profile...")
+                setHasRedirected(true)
+                setTimeout(() => {
+                    router.replace("/child-profile")
+                }, 100)
+            } else {
+                console.log("HomeScreen: User authenticated with child profile, showing dashboard")
+            }
         }
-    }, [isAuthenticated, isLoading, router, hasRedirected])
+    }, [isAuthenticated, isLoading, needsChildProfile, user, router, hasRedirected])
 
     // Show loading spinner while checking authentication
     if (isLoading) {
-        console.log("HomeScreen: Showing loading state")
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#4F7EFF" />
@@ -35,9 +49,8 @@ export default function HomeScreen() {
         )
     }
 
-    // Show dashboard if authenticated
-    if (isAuthenticated && user) {
-        console.log("HomeScreen: User authenticated, showing dashboard")
+    // Show dashboard if authenticated and has child profile
+    if (isAuthenticated && user && !needsChildProfile && hasChildProfile) {
         try {
             const Dashboard = require("../features/dashboard").default
             return <Dashboard />
@@ -53,11 +66,10 @@ export default function HomeScreen() {
     }
 
     // Show message while redirecting
-    console.log("HomeScreen: Showing redirect message")
     return (
         <View style={styles.container}>
             <ActivityIndicator size="large" color="#4F7EFF" />
-            <Text style={styles.title}>Redirecting to login...</Text>
+            <Text style={styles.title}>{!isAuthenticated ? "Redirecting to login..." : "Setting up your profile..."}</Text>
         </View>
     )
 }

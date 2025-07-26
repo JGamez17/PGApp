@@ -1,51 +1,52 @@
 import { initializeApp } from "firebase/app"
-import { getAuth } from "firebase/auth"
+import { getAuth, initializeAuth, getReactNativePersistence } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-// For development - use Firebase emulators or disable Firebase temporarily
-const isDevelopment = true // Set to false when you have real Firebase config
+// Your Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDDxVEQyOkOhOulWEdCZvwpOs-14vL9GPA",
+    authDomain: "playguard-app.firebaseapp.com",
+    projectId: "playguard-app",
+    storageBucket: "playguard-app.firebasestorage.app",
+    messagingSenderId: "224497719797",
+    appId: "1:224497719797:web:1e68528f053044c040a8bc",
+    measurementId: "G-LJFNZWXMRL"
+};
 
-let app, auth, db
+let app
+let auth
+let db
 
-if (isDevelopment) {
-    // Mock Firebase config for development
-    const mockConfig = {
-        apiKey: "mock-api-key",
-        authDomain: "localhost",
-        projectId: "demo-project",
-        storageBucket: "demo-project.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "mock-app-id",
-    }
+try {
+    console.log("Firebase: Initializing...")
 
-    try {
-        app = initializeApp(mockConfig)
-        auth = getAuth(app)
-        db = getFirestore(app)
-
-        // Use emulators for development (optional)
-        // Uncomment these lines if you want to use Firebase emulators
-        // connectAuthEmulator(auth, "http://localhost:9099")
-        // connectFirestoreEmulator(db, 'localhost', 8080)
-
-        console.log("Firebase initialized in development mode")
-    } catch (error) {
-        console.error("Firebase initialization error:", error)
-    }
-} else {
-    // Your real Firebase config goes here
-    const firebaseConfig = {
-        apiKey: "your-real-api-key",
-        authDomain: "your-project.firebaseapp.com",
-        projectId: "your-project-id",
-        storageBucket: "your-project.appspot.com",
-        messagingSenderId: "your-sender-id",
-        appId: "your-app-id",
-    }
-
+    // Initialize Firebase
     app = initializeApp(firebaseConfig)
-    auth = getAuth(app)
+    console.log("Firebase: App initialized")
+
+    // Initialize Auth
+    try {
+        auth = initializeAuth(app, {
+            persistence: getReactNativePersistence(AsyncStorage),
+        })
+        console.log("Firebase: Auth initialized with persistence")
+    } catch (authError) {
+        console.log("Firebase: Auth already initialized, using getAuth")
+        auth = getAuth(app)
+    }
+
+    // Initialize Firestore
     db = getFirestore(app)
+    console.log("Firebase: All services initialized successfully")
+} catch (error) {
+    console.error("Firebase initialization failed:", error)
+
+    // For development, we'll still create the objects but log the error
+    console.log("Firebase: Running in development mode")
+
+    // You can still use mock objects here if needed for development
+    // but for production, make sure to configure Firebase properly
 }
 
 export { auth, db }

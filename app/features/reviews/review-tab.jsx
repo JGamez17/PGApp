@@ -1,6 +1,5 @@
 "use client"
 
-import { router } from 'expo-router';
 import { useState } from "react"
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, SafeAreaView } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
@@ -45,11 +44,7 @@ const ReviewTab = () => {
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Parent Reviews</Text>
-                    {/* <TouchableOpacity style={styles.filterButton}> */}
-                    <TouchableOpacity
-                        style={{ margin: 20, padding: 12, backgroundColor: '#4F7EFF', borderRadius: 8 }}
-                        onPress={() => router.push('/features/reviews/review-tab')}
-                    >
+                    <TouchableOpacity style={styles.filterButton}>
                         <Ionicons name="filter" size={16} color="#6B7280" />
                         <Text style={styles.filterButtonText}>FILTER</Text>
                     </TouchableOpacity>
@@ -103,7 +98,10 @@ const ReviewTab = () => {
                     <View style={styles.appInfo}>
                         <View style={styles.appHeader}>
                             <Text style={styles.appName}>Scratch Jr</Text>
-                            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                            {/* Wrap Ionicons in View */}
+                            <View>
+                                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                            </View>
                         </View>
                         <View style={styles.appTags}>
                             {renderTag("Education", "education")}
@@ -123,7 +121,10 @@ const ReviewTab = () => {
                             <View style={styles.userDetails}>
                                 <View style={styles.userName}>
                                     <Text style={styles.userNameText}>Sarah M.</Text>
-                                    <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                                    {/* Wrap Ionicons in View */}
+                                    <View>
+                                        <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                                    </View>
                                 </View>
                                 <Text style={styles.userMeta}>Parent of Age 6 • 23 reviews</Text>
                             </View>
@@ -154,7 +155,10 @@ const ReviewTab = () => {
                     {/* Safety Highlights */}
                     <View style={styles.safetySection}>
                         <View style={styles.safetySectionHeader}>
-                            <Ionicons name="shield-checkmark" size={16} color="#10B981" />
+                            {/* Wrap Ionicons in View */}
+                            <View>
+                                <Ionicons name="shield-checkmark" size={16} color="#10B981" />
+                            </View>
                             <Text style={styles.safetySectionTitle}>Safety Highlights</Text>
                         </View>
                         <View style={styles.safetyTags}>

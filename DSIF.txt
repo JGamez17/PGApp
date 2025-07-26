@@ -1,0 +1,23 @@
+// Users collection document structure:
+{
+  uid: "user-id",
+  email: "user@example.com",
+  displayName: "Parent Name",
+  createdAt: timestamp,
+  updatedAt: timestamp,
+  hasChildProfile: true,
+  reviewsWritten: 5,
+  appsViewed: 23,
+  agreeToTerms: true,
+  getUpdates: true,
+  signupMethod: "email",
+  childProfile: {
+    childName: "Ben",
+    birthYear: "2015",
+    age: 8,
+    interests: ["Math & Numbers"],
+    supervisionLevel: "Close supervision",
+    devices: ["Smartphone"],
+    createdAt: timestamp
+  }
+}

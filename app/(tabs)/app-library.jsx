@@ -89,9 +89,12 @@ export default function AppLibraryScreen() {
                         <Text style={styles.watchButtonText}>WATCH</Text>
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={(e) => e.stopPropagation()}>
-                    <Ionicons name="ellipsis-vertical" size={20} color="#666" />
-                </TouchableOpacity>
+                {/* Wrap Ionicons in View */}
+                <View>
+                    <TouchableOpacity onPress={(e) => e.stopPropagation()}>
+                        <Ionicons name="ellipsis-vertical" size={20} color="#666" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {app.description && <Text style={styles.appDescription}>{app.description}</Text>}
@@ -163,7 +166,10 @@ export default function AppLibraryScreen() {
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>App Library</Text>
                     <TouchableOpacity style={styles.filterButton}>
-                        <Ionicons name="filter" size={16} color="#666" />
+                        {/* Wrap Ionicons in View */}
+                        <View>
+                            <Ionicons name="filter" size={16} color="#666" />
+                        </View>
                         <Text style={styles.filterText}>Filter</Text>
                     </TouchableOpacity>
                 </View>

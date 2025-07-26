@@ -149,21 +149,30 @@ export default function AppDetailScreen() {
                 <View style={styles.ratingsContainer}>
                     <View style={styles.ratingItem}>
                         <View style={styles.ratingHeader}>
-                            <Ionicons name="star" size={20} color="#FF8A00" />
+                            {/* Wrap Ionicons in View */}
+                            <View>
+                                <Ionicons name="star" size={20} color="#FF8A00" />
+                            </View>
                             <Text style={styles.ratingValue}>{appData.appStoreRating}</Text>
                         </View>
                         <Text style={styles.ratingLabel}>App Store</Text>
                     </View>
                     <View style={styles.ratingItem}>
                         <View style={styles.ratingHeader}>
-                            <Ionicons name="star" size={20} color="#FF8A00" />
+                            {/* Wrap Ionicons in View */}
+                            <View>
+                                <Ionicons name="star" size={20} color="#FF8A00" />
+                            </View>
                             <Text style={styles.ratingValue}>{appData.googlePlayRating}</Text>
                         </View>
                         <Text style={styles.ratingLabel}>Google Play</Text>
                     </View>
                     <View style={styles.ratingItem}>
                         <View style={styles.ratingHeader}>
-                            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                            {/* Wrap Ionicons in View */}
+                            <View>
+                                <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                            </View>
                             <Text style={styles.ratingValue}>{appData.playguardRating}</Text>
                         </View>
                         <Text style={styles.ratingLabel}>Playguard</Text>

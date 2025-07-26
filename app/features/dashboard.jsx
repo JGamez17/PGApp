@@ -3,15 +3,18 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
+import { useAuth } from "../../contexts/AuthContext"
+import { trackAppView } from "../../services/appService"
 
 export default function Dashboard() {
     const router = useRouter()
+    const { user, updateUserStats } = useAuth()
 
     const activityStats = [
         {
             id: "reviews",
             title: "Reviews Written",
-            count: 8,
+            count: user?.reviewsWritten || 0,
             icon: "create",
             iconBg: "#4F7EFF",
             iconText: "2",
@@ -19,7 +22,7 @@ export default function Dashboard() {
         {
             id: "apps",
             title: "Apps Viewed",
-            count: 32,
+            count: user?.appsViewed || 0,
             icon: "eye",
             iconBg: "#4F7EFF",
             iconText: "%",
@@ -85,8 +88,15 @@ export default function Dashboard() {
         }
     }
 
-    const handleBrowseApps = () => {
+    const handleBrowseApps = async () => {
         console.log("Dashboard: Navigating to app library")
+
+        // Track app library visit
+        if (user?.uid) {
+            await trackAppView(user.uid, "app-library", "App Library")
+            await updateUserStats({ appsViewed: (user.appsViewed || 0) + 1 })
+        }
+
         router.push("/(tabs)/app-library")
     }
 

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Alert } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
-import { useAuth } from "../../contexts/AuthContexts"
+import { useAuth } from "../../contexts/AuthContext"
 
 export default function SignupScreen() {
     const router = useRouter()
@@ -29,7 +29,7 @@ export default function SignupScreen() {
             return
         }
 
-        const result = await signup(email, password, displayName, agreeToTerms)
+        const result = await signup(email, password, displayName, agreeToTerms, getUpdates)
 
         if (result.success) {
             console.log("SignupScreen: Signup successful")
