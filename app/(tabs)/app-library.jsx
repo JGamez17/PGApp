@@ -8,6 +8,7 @@ import { useRouter } from "expo-router"
 export default function AppLibraryScreen() {
     const router = useRouter()
     const [selectedCategory, setSelectedCategory] = useState("All Categories")
+    const [searchText, setSearchText] = useState("") // New state for search text
 
     const apps = [
         {
@@ -73,6 +74,14 @@ export default function AppLibraryScreen() {
             },
         })
     }
+
+    // Filter apps based on search text
+    const filteredApps = apps.filter((app) => {
+        const lowerCaseSearchText = searchText.toLowerCase()
+        return (
+            app.name.toLowerCase().includes(lowerCaseSearchText) || app.category.toLowerCase().includes(lowerCaseSearchText)
+        )
+    })
 
     const renderApp = (app) => (
         <TouchableOpacity key={app.id} style={styles.appCard} onPress={() => handleAppPress(app)}>
@@ -176,7 +185,13 @@ export default function AppLibraryScreen() {
 
                 {/* Search Bar */}
                 <View style={styles.searchContainer}>
-                    <TextInput style={styles.searchInput} placeholder="Search safe apps & games" placeholderTextColor="#999" />
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="Search safe apps & games"
+                        placeholderTextColor="#999"
+                        value={searchText} // Bind value to searchText state
+                        onChangeText={setSearchText} // Update searchText on change
+                    />
                 </View>
 
                 {/* Recommendation Banner */}
@@ -188,8 +203,8 @@ export default function AppLibraryScreen() {
                     </View>
                 </View>
 
-                {/* App List */}
-                {apps.slice(0, 2).map(renderApp)}
+                {/* App List (now using filteredApps) */}
+                {filteredApps.slice(0, 2).map(renderApp)}
 
                 {/* Categories */}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
@@ -224,7 +239,7 @@ export default function AppLibraryScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {apps.slice(2).map(renderApp)}
+                {filteredApps.slice(2).map(renderApp)}
             </ScrollView>
         </SafeAreaView>
     )
