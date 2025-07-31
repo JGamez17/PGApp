@@ -8,7 +8,7 @@ import { useRouter } from "expo-router"
 export default function AppLibraryScreen() {
     const router = useRouter()
     const [selectedCategory, setSelectedCategory] = useState("All Categories")
-    const [searchText, setSearchText] = useState("") // New state for search text
+    const [searchText, setSearchText] = useState("")
 
     const apps = [
         {

@@ -1,19 +1,34 @@
 "use client"
 
-import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, StatusBar } from "react-native"
+import { useState, useEffect, useCallback } from "react"
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    SafeAreaView,
+    StatusBar,
+    ActivityIndicator,
+} from "react-native"
 import { Ionicons } from "@expo/vector-icons"
-import { useRouter, useLocalSearchParams } from "expo-router"
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router"
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore" // Import Firestore functions
+import { db } from "../config/firebase"
 
 export default function AppDetailScreen() {
     const router = useRouter()
     const params = useLocalSearchParams()
-    const [activeTab, setActiveTab] = useState("REVIEWS")
+    const { id: appId, name: appName, initialTab } = params
+    console.log("AppDetailScreen: Received params:", params)
+    const [activeTab, setActiveTab] = useState("REVIEWS") // Default to REVIEWS
+    const [reviews, setReviews] = useState([]) // State to store fetched reviews
+    const [loadingReviews, setLoadingReviews] = useState(true) // State for loading reviews
 
     // Mock app data - in a real app, this would come from an API or database
     const appData = {
-        id: params.id || "1",
-        name: params.name || "Duolingo ABC",
+        id: appId || "1", // Use appId from params
+        name: appName || "Duolingo ABC", // Use appName from params
         developer: "Duolingo",
         icon: "🦉",
         iconBg: "#8B5CF6",
@@ -25,36 +40,54 @@ export default function AppDetailScreen() {
         description: "Learn languages through play and memory.",
     }
 
-    const reviews = [
-        {
-            id: 1,
-            author: "Sarah M.",
-            rating: 5,
-            timestamp: "2 days ago",
-            text: "Great app for my 8-year-old! She's learning Spanish and loves the interactive lessons.",
-        },
-        {
-            id: 2,
-            author: "Mike R.",
-            rating: 4,
-            timestamp: "1 week ago",
-            text: "Good educational content, but wish there were more parental controls.",
-        },
-        {
-            id: 3,
-            author: "Jennifer K.",
-            rating: 5,
-            timestamp: "2 weeks ago",
-            text: "My daughter loves this app! The lessons are engaging and she's actually learning. Highly recommend for young kids.",
-        },
-        {
-            id: 4,
-            author: "David L.",
-            rating: 4,
-            timestamp: "3 weeks ago",
-            text: "Solid educational app with good content. The interface is kid-friendly and easy to navigate.",
-        },
-    ]
+    // Set initial tab if provided in params
+    useEffect(() => {
+        if (initialTab) {
+            setActiveTab(initialTab)
+            console.log("AppDetailScreen: Setting activeTab to:", initialTab)
+        }
+    }, [initialTab])
+
+    // Function to fetch reviews for the current app
+    const fetchAppReviews = useCallback(async () => {
+        setLoadingReviews(true)
+        console.log("AppDetailScreen: Fetching reviews for appId:", appData.id)
+        try {
+            if (!db) {
+                console.error("Firestore DB is not initialized.")
+                setReviews([])
+                return
+            }
+            const reviewsCollectionRef = collection(db, "reviews")
+            const q = query(
+                reviewsCollectionRef,
+                where("appId", "==", appData.id), // Filter by current appId
+                orderBy("createdAt", "desc"), // Order by creation time
+            )
+            const querySnapshot = await getDocs(q)
+            const fetchedReviews = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate().toLocaleDateString() : "N/A",
+            }))
+            setReviews(fetchedReviews)
+            console.log(`Fetched ${fetchedReviews.length} reviews for app ${appData.name}:`, fetchedReviews)
+        } catch (error) {
+            console.error("Error fetching app reviews:", error)
+        } finally {
+            setLoadingReviews(false)
+        }
+    }, [appData.id, appData.name])
+
+    // Fetch reviews when the screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            fetchAppReviews()
+            return () => {
+                // Optional cleanup
+            }
+        }, [fetchAppReviews]),
+    )
 
     const renderStars = (rating) => {
         return Array.from({ length: 5 }, (_, index) => (
@@ -66,7 +99,7 @@ export default function AppDetailScreen() {
         <View key={review.id} style={styles.reviewCard}>
             <View style={styles.reviewHeader}>
                 <View style={styles.reviewStars}>{renderStars(review.rating)}</View>
-                <Text style={styles.reviewAuthor}>{review.author}</Text>
+                <Text style={styles.reviewAuthor}>{review.userName}</Text> {/* Use dynamic author */}
                 <Text style={styles.reviewTimestamp}>{review.timestamp}</Text>
             </View>
             <Text style={styles.reviewText}>{review.text}</Text>
@@ -91,12 +124,31 @@ export default function AppDetailScreen() {
                 return (
                     <View style={styles.tabContent}>
                         <Text style={styles.reviewsTitle}>Parent Reviews</Text>
-                        {reviews.map(renderReview)}
+                        {loadingReviews ? (
+                            <View style={styles.loadingReviewsContainer}>
+                                <ActivityIndicator size="large" color="#4F7EFF" />
+                                <Text style={styles.loadingReviewsText}>Loading reviews...</Text>
+                            </View>
+                        ) : reviews.length === 0 ? (
+                            <View style={styles.noReviewsContainer}>
+                                <Text style={styles.noReviewsText}>No reviews found yet for this app. Be the first to write one!</Text>
+                            </View>
+                        ) : (
+                            reviews.map(renderReview)
+                        )}
                     </View>
                 )
             default:
                 return null
         }
+    }
+
+    const handleWriteReview = () => {
+        console.log("Navigating to write review screen for app:", appData.name)
+        router.push({
+            pathname: "/features/reviews/create",
+            params: { appId: appData.id, appName: appData.name },
+        })
     }
 
     return (
@@ -105,7 +157,13 @@ export default function AppDetailScreen() {
 
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity
+                    onPress={() => {
+                        console.log("AppDetailScreen: Top back button pressed. Attempting router.back()")
+                        router.back()
+                    }}
+                    style={styles.backButton}
+                >
                     <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>{appData.name}</Text>
@@ -114,7 +172,13 @@ export default function AppDetailScreen() {
             <ScrollView style={styles.content}>
                 {/* App Details Header */}
                 <View style={styles.detailsHeader}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.detailsBackButton}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            console.log("AppDetailScreen: Details header back button pressed. Attempting router.back()")
+                            router.back()
+                        }}
+                        style={styles.detailsBackButton}
+                    >
                         <Ionicons name="chevron-back" size={24} color="#1F2937" />
                     </TouchableOpacity>
                     <Text style={styles.detailsTitle}>App Details</Text>
@@ -180,7 +244,7 @@ export default function AppDetailScreen() {
                 </View>
 
                 {/* Write Review Button */}
-                <TouchableOpacity style={styles.writeReviewButton}>
+                <TouchableOpacity style={styles.writeReviewButton} onPress={handleWriteReview}>
                     <Text style={styles.writeReviewText}>WRITE REVIEW</Text>
                 </TouchableOpacity>
 
@@ -415,5 +479,28 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#4B5563",
         lineHeight: 24,
+    },
+    loadingReviewsContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 50,
+    },
+    loadingReviewsText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: "#6B7280",
+    },
+    noReviewsContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 50,
+        paddingHorizontal: 20,
+    },
+    noReviewsText: {
+        fontSize: 16,
+        color: "#6B7280",
+        textAlign: "center",
     },
 })
